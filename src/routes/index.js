@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import userRoutes from './user.routes.js';
 import expenseRouter from './expenses.routes.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import incomeRouter from './incomes.routes.js';
+import dashboardRouter from './dashboard.routes.js';
 
 const router = express.Router();
 
@@ -26,6 +28,7 @@ router.get('/health', (req, res) => {
 // Mount other modules here
 router.use('/users', userRoutes);
 router.use('/user-expenses', expenseRouter);
-
+router.use('/user-incomes', incomeRouter);
+router.use('/dashboard', dashboardRouter);
 
 export default router;
