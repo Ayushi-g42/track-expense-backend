@@ -36,14 +36,14 @@ export const createUserExpense = asyncHandler(async (req, res) => {
 
 
 export const getUserExpense = asyncHandler(async (req, res) => {
-    const { page, limit } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     const skip = (page - 1) * limit;
 
     const filter = { userId: req.user._id };
 
     // Fetch expenses and count total matching records
-    const expenses = await Expenses.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
+    const expenses = await Expenses.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit));
 
     const totalItems = await Expenses.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / limit);
@@ -53,8 +53,8 @@ export const getUserExpense = asyncHandler(async (req, res) => {
         pagination: {
             totalItems,
             totalPages,
-            currentPage: page,
-            limit,
+            currentPage: Number(page),
+            limit: Number(limit),
         },
     };
 
