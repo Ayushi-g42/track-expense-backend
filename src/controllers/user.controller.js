@@ -147,7 +147,7 @@ export const loginUsers = asyncHandler(async (req, res) => {
 
   //Generate JWT Token
   const token = jwt.sign(
-    { _id: existingUser._id, email: existingUser.email }, 
+    { _id: existingUser._id, email: existingUser.email },
     process.env.JWT_SECRET_KEY,
     { expiresIn: '1d' }
   );
@@ -165,4 +165,45 @@ export const loginUsers = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", token, options)
     .json(new ApiResponse(200, { user: loggedInUser, token }, 'User logged in successfully'));
+});
+
+
+export const updateUserProfile = asyncHandler(async (req, res) => {
+  const id = req.user._id;
+  const updates = req.body;
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  // Check email conflict if user is updating email
+  if (updates.email && updates.email !== user.email) {
+    const emailConflict = await User.findOne({ email: updates.email });
+    if (emailConflict) {
+      throw new ApiError(409, 'Email address is already in use by another account');
+    }
+  }
+
+  // Assign update fields dynamically
+  Object.keys(updates).forEach((updateKey) => {
+    user[updateKey] = updates[updateKey];
+  });
+
+  // Save triggers pre-save hooks (handles hashing of new password if modified)
+  await user.save();
+
+  const updatedUser = user.toObject();
+  delete updatedUser.password;
+
+  res.status(200).json(new ApiResponse(200, updatedUser, 'User updated successfully'));
+});
+
+export const uploadProfileImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, 'Please upload a file');
+  }
+
+  const imageUrl = `/public/uploads/${req.file.filename}`;
+
+  res.status(200).json(new ApiResponse(200, { profileImg: imageUrl }, 'Profile image uploaded successfully'));
 });

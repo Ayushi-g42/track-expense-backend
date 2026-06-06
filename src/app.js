@@ -57,6 +57,9 @@ app.use('/api', limiter);
 // 5. API Routes
 app.use('/api/v1', routes);
 
+// Serve static files
+app.use('/public', express.static('public'));
+
 // 6. Global 404 Handler (For unmatched routes)
 app.use((req, res, next) => {
   next(new ApiError(404, `Endpoint not found: ${req.method} ${req.originalUrl}`));

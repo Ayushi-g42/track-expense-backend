@@ -77,3 +77,15 @@ export const loginUser = {
     password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
   }),
 };
+
+export const updateUserProfileSchema = {
+  body: z.object({
+    name: z
+      .string()
+      .min(2, { message: 'Name must be at least 2 characters long' })
+      .max(50, { message: 'Name must not exceed 50 characters' }),
+    email: z.string().email({ message: 'Please enter a valid email address' }),
+    role: z.enum(['user', 'admin']).optional(),
+    profileImg: z.string().optional(),
+  }),
+};
