@@ -89,3 +89,18 @@ export const updateUserProfileSchema = {
     profileImg: z.string().optional(),
   }),
 };
+
+export const forgotPasswordSchema = {
+  body: z.object({
+    email: z.string().email({ message: 'Please enter a valid email address' }),
+  }),
+};
+
+export const resetPasswordSchema = {
+  params: z.object({
+    token: z.string({ message: 'Token is required' }),
+  }),
+  body: z.object({
+    password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+  }),
+};

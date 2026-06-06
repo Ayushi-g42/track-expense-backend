@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema(
   {
@@ -42,6 +43,8 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt
@@ -73,6 +76,26 @@ userSchema.pre('save', async function (next) {
  */
 userSchema.methods.isPasswordMatch = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
+};
+
+/**
+ * Generate and hash password token
+ * @returns {string} Unhashed token for the email URL
+ */
+userSchema.methods.getResetPasswordToken = function () {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 Minutes
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

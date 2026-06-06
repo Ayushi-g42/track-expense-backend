@@ -8,6 +8,8 @@ import {
   loginUsers,
   updateUserProfile,
   uploadProfileImage,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/user.controller.js';
 import validate from '../middleware/validate.middleware.js';
 import authMiddleware from '../middleware/auth.middleware.js';
@@ -20,6 +22,8 @@ import {
   deleteUser as deleteUserSchema,
   loginUser as loginUserSchema,
   updateUserProfileSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from '../validations/user.validation.js';
 
 const router = express.Router();
@@ -45,6 +49,14 @@ router
 router
   .route('/upload')
   .post(authMiddleware, upload.single('image'), uploadProfileImage);
+
+router
+  .route('/forgot-password')
+  .post(validate(forgotPasswordSchema), forgotPassword);
+
+router
+  .route('/reset-password/:token')
+  .put(validate(resetPasswordSchema), resetPassword);
 
 
 export default router;
